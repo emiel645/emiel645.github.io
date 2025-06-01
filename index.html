@@ -1,13 +1,10 @@
-<?php
-include 'includes/db.php';
-include 'includes/header.php';
 
-// Hobby's ophalen
-$stmt = $pdo->query("SELECT * FROM hobbys ORDER BY id");
-$hobbys = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-
-<style>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Over mij</title>
+  <style>
   body {
     background-color: #f5f7fa;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -93,57 +90,82 @@ $hobbys = $stmt->fetchAll(PDO::FETCH_ASSOC);
     color: #0056b3;
   }
 </style>
-
-<div class="container" id="about-me">
-  <h1>Over mij</h1>
-  <p>Ik ben Emiel Liefhebber, een student op het Talland College in Alkmaar en ik ben 18 jaar.</p>
-  <p>Mijn opleiding is software developer en ik wil later programmeur worden.</p>
-  <img src="img/mijzlef.jpg" alt="Foto van Emiel">
-</div>
-
-<div class="container" id="hobby-section">
-  <h1>Mijn Hobby's</h1>
-
-  <div id="hobby-navigation">
-    <button id="prev-hobby" aria-label="Vorige hobby">⬅️</button>
-    <div>
-      <img id="hobby-image" src="" alt="Hobby afbeelding">
-      <div id="hobby-name"></div>
-    </div>
-    <button id="next-hobby" aria-label="Volgende hobby">➡️</button>
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+  <div class="container" id="about-me">
+    <h1>Over mij</h1>
+    <p>Ik ben Emiel Liefhebber, een student op het Talland College in Alkmaar en ik ben 18 jaar.</p>
+    <p>Mijn opleiding is software developer en ik wil later programmeur worden.</p>
+    <img src="img/mijzlef.jpg" alt="Foto van Emiel">
   </div>
-</div>
+
+  <div class="container" id="hobby-section">
+    <h1>Mijn Hobby's</h1>
+    <div id="hobby-navigation">
+      <button id="prev-hobby" aria-label="Vorige hobby">⬅️</button>
+      <div>
+        <img id="hobby-image" src="" alt="Hobby afbeelding">
+        <div id="hobby-name"></div>
+      </div>
+      <button id="next-hobby" aria-label="Volgende hobby">➡️</button>
+    </div>
+  </div>
+  <div id="footer-placeholder"></div>
+  <script>
+    let hobbys = [];
+    let currentIndex = 0;
+
+    const hobbyImage = document.getElementById('hobby-image');
+    const hobbyName = document.getElementById('hobby-name');
+    const prevButton = document.getElementById('prev-hobby');
+    const nextButton = document.getElementById('next-hobby');
+
+    function showHobby(index) {
+      const hobby = hobbys[index];
+      hobbyImage.src = "img/" + hobby.afbeelding_url;
+      hobbyImage.alt = hobby.naam;
+      hobbyName.textContent = hobby.naam;
+    }
+
+    function updateNavigation() {
+      prevButton.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + hobbys.length) % hobbys.length;
+        showHobby(currentIndex);
+      });
+
+      nextButton.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % hobbys.length;
+        showHobby(currentIndex);
+      });
+    }
+
+    fetch('api/hobbys.php')
+      .then(response => response.json())
+      .then(data => {
+        hobbys = data;
+        if (hobbys.length > 0) {
+          showHobby(0);
+          updateNavigation();
+        }
+      })
+      .catch(error => console.error('Fout bij het laden van hobby\'s:', error));
+  </script>
 
 <script>
-  // PHP array omzetten naar JavaScript
-  const hobbys = <?= json_encode($hobbys, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
-
-  let currentIndex = 0;
-
-  const hobbyImage = document.getElementById('hobby-image');
-  const hobbyName = document.getElementById('hobby-name');
-  const prevButton = document.getElementById('prev-hobby');
-  const nextButton = document.getElementById('next-hobby');
-
-  function showHobby(index) {
-    const hobby = hobbys[index];
-    hobbyImage.src = "img/" + hobby.afbeelding_url;
-    hobbyImage.alt = hobby.naam;
-    hobbyName.textContent = hobby.naam;
+  function loadComponent(id, url) {
+    fetch(url)
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById(id).innerHTML = html;
+      })
+      .catch(err => console.error(`Fout bij laden van ${url}:`, err));
   }
 
-  prevButton.addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + hobbys.length) % hobbys.length;
-    showHobby(currentIndex);
-  });
-
-  nextButton.addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % hobbys.length;
-    showHobby(currentIndex);
-  });
-
-  // Init eerste hobby tonen
-  showHobby(currentIndex);
+  loadComponent('header-placeholder', 'includes/header.html');
+  loadComponent('footer-placeholder', 'includes/footer.html');
 </script>
 
-<?php include 'includes/footer.php'; ?>
+</body>
+</html>
