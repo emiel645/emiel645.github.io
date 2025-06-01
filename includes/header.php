@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Mijn Portfolio</title>
-    <link rel="stylesheet" href="/portfolio/css/style.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
     <nav>
-        <a href="/portfolio/index.php">Home</a>
-        <a href="/portfolio/about.php">Over mij</a>
-        <a href="/portfolio/game.php">Verveel je je?</a>
+        <a href="index.php">Home</a>
+        <a href="hobbys.php">Hobby's</a>
+        <a href="game.php">Verveel je je?</a>
     </nav>
+    <main>

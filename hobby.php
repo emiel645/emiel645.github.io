@@ -1,20 +1,40 @@
-<?php include 'includes/db.php'; ?>
-<?php include 'includes/header.php'; ?>
-
 <?php
-$id = $_GET['id'];
+include 'includes/db.php';
+include 'includes/header.php';
+
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    echo "<p>Ongeldig ID</p>";
+    exit;
+}
+
+$id = (int) $_GET['id'];
 $stmt = $pdo->prepare("SELECT * FROM hobbys WHERE id = ?");
 $stmt->execute([$id]);
 $hobby = $stmt->fetch();
 
-if ($hobby):
+if (!$hobby) {
+    echo "<p>Hobby niet gevonden.</p>";
+    exit;
+}
 ?>
-    <h1><?php echo $hobby['naam']; ?></h1>
-    <img src="img/<?php echo $hobby['afbeelding_url']; ?>" alt="<?php echo $hobby['naam']; ?>">
-    <p><?php echo $hobby['beschrijving']; ?></p>
 
-    <p>Hobby niet gevonden.</p>
-    <?php
- endif; 
+<style>
+  .hobby-image {
+    display: block;
+    margin: 20px auto;
+    max-width: 600px;
+    width: 90%;
+    height: auto;
+    border-radius: 8px;
+  }
+</style>
 
-include 'includes/footer.php'; ?>
+<a href="hobbys.php">← Terug naar overzicht</a>
+
+<h1><?= htmlspecialchars($hobby['naam']) ?></h1>
+<img src="img/<?= htmlspecialchars($hobby['afbeelding_url']) ?>" alt="<?= htmlspecialchars($hobby['naam']) ?>" class="hobby-image">
+<p><?= nl2br(htmlspecialchars($hobby['beschrijving'])) ?></p>
+
+<?php
+include 'includes/footer.php';
+?>
