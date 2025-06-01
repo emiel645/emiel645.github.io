@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Registreren</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: 60px auto;
+      padding: 40px 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 15px 0 20px 0;
+      border: 1.8px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      background: #0056b3;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .error {
+      color: #d9534f;
+      font-weight: 600;
+      margin-top: 25px;
+    }
+    .success {
+      color: green;
+      font-weight: 600;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="header-placeholder"></div>
+
+  <div class="container">
+    <h2 style="color:#0056b3; margin-bottom:30px;">Registreren</h2>
+
+    <form id="signup-form">
+      <input type="text" name="username" placeholder="Gebruikersnaam" required>
+      <input type="password" name="password" placeholder="Wachtwoord" required>
+      <input type="password" name="confirm_password" placeholder="Bevestig wachtwoord" required>
+      <button type="submit">Account aanmaken</button>
+    </form>
+
+    <p id="feedback" class=""></p>
+
+    <p style="margin-top:30px; font-size:14px; color:#666;">
+      Heb je al een account?
+      <a href="login.html" style="color:#0056b3; font-weight:600; text-decoration:none;">Log hier in</a>
+    </p>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    // Header/Footer
+    function loadComponent(id, url) {
+      fetch(url)
+        .then(res => res.text())
+        .then(html => document.getElementById(id).innerHTML = html);
+    }
+    loadComponent("header-placeholder", "includes/header.html");
+    loadComponent("footer-placeholder", "includes/footer.html");
+
+    // Formulierverwerking
+    const form = document.getElementById("signup-form");
+    const feedback = document.getElementById("feedback");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      fetch("api/signup.php", {
+        method: "POST",
+        body: new URLSearchParams(formData)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          feedback.textContent = data.message;
+          feedback.className = "success";
+          setTimeout(() => window.location.href = "game.html", 1500);
+        } else {
+          feedback.textContent = data.message;
+          feedback.className = "error";
+        }
+      })
+      .catch(() => {
+        feedback.textContent = "Er is een fout opgetreden.";
+        feedback.className = "error";
+      });
+    });
+  </script>
+</body>
+</html>

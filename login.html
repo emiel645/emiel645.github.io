@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: 60px auto;
+      padding: 40px 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .container input,
+    .container button {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 15px 0;
+      border: 1.8px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .container button {
+      background: #0056b3;
+      color: white;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+    }
+    #error {
+      color: #d9534f;
+      font-weight: 600;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="header-placeholder"></div>
+
+  <div class="container">
+    <h2 style="color:#0056b3;">Login</h2>
+
+    <form id="login-form" autocomplete="off">
+      <input type="text" name="username" placeholder="Gebruikersnaam" required>
+      <input type="password" name="password" placeholder="Wachtwoord" required>
+      <button type="submit">Login</button>
+    </form>
+
+    <p id="error"></p>
+
+    <p style="margin-top:25px; font-size:14px; color:#666;">
+      Heb je nog geen account?
+      <a href="signup.html" style="color:#0056b3; font-weight:600; text-decoration:none;">Registreer hier</a>
+    </p>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    // Header/footer inladen
+    function loadComponent(id, url) {
+      fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById(id).innerHTML = html;
+        });
+    }
+
+    loadComponent("header-placeholder", "includes/header.html");
+    loadComponent("footer-placeholder", "includes/footer.html");
+
+    // Login afhandelen
+    const form = document.getElementById("login-form");
+    const errorP = document.getElementById("error");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      fetch("api/login.php", {
+        method: "POST",
+        body: new URLSearchParams(formData),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Login geslaagd – sla eventueel op of ga door
+            localStorage.setItem("user_id", data.user_id);
+            window.location.href = "game.html";
+          } else {
+            errorP.textContent = data.message;
+          }
+        })
+        .catch(() => {
+          errorP.textContent = "Er is een fout opgetreden. Probeer opnieuw.";
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Reactietijd Test</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background-color: #f5f7fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 20px;
+    }
+
+    #start {
+      padding: 20px 40px;
+      font-size: 24px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 24px;
+    }
+
+    .account-button {
+      position: absolute;
+      right: 20px;
+      top: 54px;
+    }
+
+    .account-button button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="header-placeholder"></div>
+
+  <div class="account-button" id="account-placeholder">
+    <!-- Account/Login button komt hier -->
+  </div>
+
+  <main>
+    <h1>Test je reactietijd</h1>
+    <button id="start">Start</button>
+    <div id="result"></div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    // Header en footer inladen
+    function loadComponent(id, url) {
+      fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById(id).innerHTML = html;
+        });
+    }
+
+    loadComponent("header-placeholder", "includes/header.html");
+    loadComponent("footer-placeholder", "includes/footer.html");
+
+    // Simuleer loginstatus via lokale opslag of API
+    // Voorbeeld met localStorage
+    const isLoggedIn = localStorage.getItem("user_id") !== null;
+
+    const accountPlaceholder = document.getElementById("account-placeholder");
+    accountPlaceholder.innerHTML = isLoggedIn
+      ? `<a href="acount.html"><button>Account</button></a>`
+      : `<a href="login.html"><button>Login</button></a>`;
+
+    // Reactietest logica
+    const button = document.getElementById("start");
+    const result = document.getElementById("result");
+
+    let waitingForClick = false;
+    let startTime;
+
+    function startGame() {
+      result.innerText = "Wacht op groen...";
+      button.disabled = true;
+      button.innerText = "Wachten...";
+
+      setTimeout(() => {
+        result.innerText = "KLIK NU!";
+        button.innerText = "KLIK!";
+        startTime = new Date().getTime();
+        waitingForClick = true;
+        button.disabled = false;
+      }, Math.random() * 3000 + 2000);
+    }
+
+    button.addEventListener("click", () => {
+      if (waitingForClick) {
+        const reactionTime = new Date().getTime() - startTime;
+        result.innerText = `Je reactietijd was ${reactionTime} ms`;
+        button.innerText = "Opnieuw";
+        waitingForClick = false;
+
+        if (isLoggedIn) {
+          // Verstuur alleen als gebruiker is ingelogd
+          fetch("save_reaction.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "reactionTime=" + reactionTime
+          })
+            .then(res => res.text())
+            .then(data => console.log(data));
+        }
+      } else {
+        startGame();
+      }
+    });
+  </script>
+
+</body>
+
+</html>

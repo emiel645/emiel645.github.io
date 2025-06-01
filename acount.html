@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Accountpagina</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 40px 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    button {
+      padding: 12px 24px;
+      background: #d9534f;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="header-placeholder"></div>
+
+  <div class="container">
+    <h2 style="color:#0056b3; margin-bottom:20px;">Welkom op je accountpagina</h2>
+
+    <p id="reaction-time" style="font-size:1.2rem; margin-bottom:30px;">
+      <strong>Jouw snelste reactietijd:</strong><br>
+      <span id="reaction-time-value" style="color:#888;">Laden...</span>
+    </p>
+
+    <form id="logout-form">
+      <button type="submit">Log uit</button>
+    </form>
+  </div>
+
+  <div id="footer-placeholder"></div>
+
+  <script>
+    // Header/footer laden
+    function loadComponent(id, url) {
+      fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById(id).innerHTML = html;
+        });
+    }
+    loadComponent("header-placeholder", "includes/header.html");
+    loadComponent("footer-placeholder", "includes/footer.html");
+
+    // Haal accountdata op
+    fetch("api/account.php")
+      .then(res => {
+        if (res.status === 401) {
+          window.location.href = "login.html";
+        }
+        return res.json();
+      })
+      .then(data => {
+        const timeEl = document.getElementById("reaction-time-value");
+        if (data.time_ms) {
+          timeEl.innerHTML = `<span style="color:#28a745; font-size:1.5rem;">${data.time_ms} ms</span>`;
+        } else {
+          timeEl.textContent = "Nog geen tijd gemeten.";
+        }
+      })
+      .catch(err => {
+        document.getElementById("reaction-time-value").textContent = "Fout bij ophalen.";
+      });
+
+    // Logout
+    document.getElementById("logout-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (confirm("Weet je zeker dat je wilt uitloggen?")) {
+        fetch("api/logout.php", { method: "POST" })
+          .then(() => window.location.href = "login.html");
+      }
+    });
+  </script>
+</body>
+</html>
